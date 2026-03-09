@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#00d4ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PD Monitor">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>مراقب باركنسون</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--card:#1a2235;--border:#2a3a55;
+  --accent:#00d4ff;--normal:#22c55e;--mild:#facc15;
+  --moderate:#f97316;--severe:#ef4444;
+  --text:#e2e8f0;--text2:#94a3b8;
+}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+.bg-grid{position:fixed;inset:0;z-index:0;
+  background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none}
+.app{position:relative;z-index:1;max-width:480px;margin:0 auto;
+  min-height:100vh;padding-bottom:env(safe-area-inset-bottom,20px)}
+
+/* Header */
+.header{padding:14px 18px;padding-top:calc(14px + env(safe-area-inset-top,0px));
+  background:rgba(17,24,39,0.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.hinner{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-svg{width:36px;height:36px;color:var(--accent);animation:pulse 3s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.95)}}
+.logo-main{display:block;font-size:17px;font-weight:700}
+.logo-sub{display:block;font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace}
+.badge{display:flex;align-items:center;gap:7px;padding:5px 12px;
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  font-size:12px;color:var(--text2);transition:all .3s;white-space:nowrap}
+.badge.on{border-color:var(--normal);color:var(--normal)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--text2);transition:all .3s;flex-shrink:0}
+.badge.on .dot{background:var(--normal);box-shadow:0 0 8px var(--normal);animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Main */
+.main{padding:16px;display:flex;flex-direction:column;gap:13px}
+
+/* Install Banner */
+.install-banner{background:linear-gradient(135deg,#1e3a5f,#0f2040);
+  border:1px solid #00d4ff44;border-radius:16px;padding:14px 16px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .3s}
+.install-banner:hover{border-color:#00d4ff88}
+.install-icon{font-size:28px;flex-shrink:0}
+.install-text{flex:1}
+.install-title{font-size:14px;font-weight:700;color:#00d4ff;margin-bottom:2px}
+.install-sub{font-size:12px;color:var(--text2)}
+.install-btn{padding:7px 14px;background:#00d4ff;border:none;border-radius:10px;
+  color:#000;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;white-space:nowrap;flex-shrink:0}
+
+/* Connect Button */
+.conn-btn{width:100%;padding:16px;background:linear-gradient(135deg,#00d4ff,#0099bb);
+  border:none;border-radius:16px;color:#000;font-family:'Tajawal',sans-serif;
+  font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;gap:10px;transition:all .3s;box-shadow:0 4px 20px rgba(0,212,255,.3);
+  -webkit-tap-highlight-color:transparent}
+.conn-btn:active{transform:scale(.98)}
+.conn-btn.off{background:linear-gradient(135deg,#ef4444,#b91c1c);box-shadow:0 4px 20px rgba(239,68,68,.3)}
+.conn-btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* Status Card */
+.status-card{background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:22px;text-align:center;transition:all .5s}
+.status-card.mild{border-color:var(--mild);box-shadow:0 0 30px rgba(250,204,21,.15)}
+.status-card.moderate{border-color:var(--moderate);box-shadow:0 0 30px rgba(249,115,22,.15)}
+.status-card.severe{border-color:var(--severe);box-shadow:0 0 30px rgba(239,68,68,.2);
+  animation:shk .5s ease-in-out infinite alternate}
+@keyframes shk{0%{transform:translateX(-2px)}100%{transform:translateX(2px)}}
+.s-label{font-size:11px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.s-level{font-size:30px;font-weight:900;color:var(--normal);transition:all .4s;margin-bottom:14px}
+.s-bar{height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.s-fill{height:100%;width:0%;background:var(--normal);border-radius:3px;
+  transition:all .6s cubic-bezier(.34,1.56,.64,1)}
+
+/* Metrics Grid */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.mc{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:16px 12px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .3s}
+.mc.upd::before{opacity:1}
+.m-icon{font-size:20px;margin-bottom:5px}
+.m-val{font-size:24px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;line-height:1}
+.m-unit{font-size:11px;color:var(--text2);margin:3px 0}
+.m-lbl{font-size:12px;color:var(--text2);font-weight:500}
+
+/* Battery */
+.bat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 18px}
+.bat-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:9px;color:var(--text2)}
+#batPct{color:var(--text);font-weight:700;font-family:'JetBrains Mono',monospace}
+.bat-track{height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden}
+.bat-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--normal),#16a34a);
+  border-radius:4px;transition:width 1s ease,background .5s}
+.bat-fill.low{background:linear-gradient(90deg,var(--severe),#b91c1c)}
+.bat-fill.med{background:linear-gradient(90deg,var(--mild),#ca8a04)}
+
+/* Chart */
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+.chart-title{font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600}
+canvas{width:100%!important;display:block}
+
+/* Reset */
+.reset-btn{width:100%;padding:13px;background:transparent;border:1px solid var(--border);
+  border-radius:14px;color:var(--text2);font-family:'Tajawal',sans-serif;font-size:15px;
+  cursor:pointer;transition:all .3s;-webkit-tap-highlight-color:transparent}
+.reset-btn:active{border-color:var(--severe);color:var(--severe)}
+
+/* No BLE */
+.no-ble{background:#1e1b4b;border:1px solid #4338ca;border-radius:14px;
+  padding:16px;text-align:center;font-size:14px;color:#a5b4fc}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="app">
+
+  <header class="header">
+    <div class="hinner">
+      <div class="logo">
+        <svg class="logo-svg" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2"/>
+          <path d="M10 20 Q15 10 20 20 Q25 30 30 20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="20" cy="20" r="3" fill="currentColor"/>
+        </svg>
+        <div>
+          <span class="logo-main">مراقب باركنسون</span>
+          <span class="logo-sub">Parkinson Monitor v2.0</span>
+        </div>
+      </div>
+      <div class="badge" id="badge">
+        <span class="dot"></span>
+        <span id="connTxt">غير متصل</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <div id="installBanner" class="install-banner" style="display:none" onclick="installApp()">
+      <div class="install-icon">📲</div>
+      <div class="install-text">
+        <div class="install-title">ثبّت التطبيق على هاتفك</div>
+        <div class="install-sub">يعمل بدون إنترنت بعد التثبيت</div>
+      </div>
+      <button class="install-btn">تثبيت</button>
+    </div>
+
+    <div id="bleWarning" style="display:none" class="no-ble">
+      ⚠️ افتح التطبيق في متصفح <strong>Chrome</strong> على Android
+    </div>
+
+    <button class="conn-btn" id="connBtn" onclick="toggleConnect()">
+      <span>📶</span><span id="btnTxt">اتصال بالجهاز</span>
+    </button>
+
+    <div class="status-card" id="statusCard">
+      <div class="s-label">الحالة الراهنة</div>
+      <div class="s-level" id="sLevel">طبيعي ✅</div>
+      <div class="s-bar"><div class="s-fill" id="sFill"></div></div>
+    </div>
+
+    <div class="grid">
+      <div class="mc" id="cardFreq">
+        <div class="m-icon">〰️</div>
+        <div class="m-val" id="vFreq">—</div>
+        <div class="m-unit">Hz</div>
+        <div class="m-lbl">التردد</div>
+      </div>
+      <div class="mc" id="cardRMS">
+        <div class="m-icon">📳</div>
+        <div class="m-val" id="vRMS">—</div>
+        <div class="m-unit">g</div>
+        <div class="m-lbl">الشدة</div>
+      </div>
+      <div class="mc" id="cardDur">
+        <div class="m-icon">⏱️</div>
+        <div class="m-val" id="vDur">0</div>
+        <div class="m-unit">ث</div>
+        <div class="m-lbl">المدة</div>
+      </div>
+      <div class="mc" id="cardEvt">
+        <div class="m-icon">📊</div>
+        <div class="m-val" id="vEvt">0</div>
+        <div class="m-unit">مرة</div>
+        <div class="m-lbl">النوبات</div>
+      </div>
+    </div>
+
+    <div class="bat-card">
+      <div class="bat-top"><span>🔋 البطارية</span><span id="batPct">—%</span></div>
+      <div class="bat-track"><div class="bat-fill" id="batFill"></div></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">📈 سجل الرعشة</div>
+      <canvas id="chart" height="100"></canvas>
+    </div>
+
+    <button class="reset-btn" onclick="resetAll()">↺ إعادة ضبط</button>
+
+  </main>
+</div>
+
+<script>
+// ---- BLE ----
+const BLE_SVC  = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
+const BLE_DATA = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
+const BLE_CMD  = 'beb5483e-36e1-4688-b7f5-ea07361b26a9';
+let bleDevice=null,dataChar=null,cmdChar=null,connected=false;
+
+async function toggleConnect(){connected?await doDisconnect():await doConnect();}
+
+async function doConnect(){
+  try{
+    setBtn('جارٍ البحث...',true,false);
+    bleDevice=await navigator.bluetooth.requestDevice({
+      filters:[{name:'PD_Monitor'}],optionalServices:[BLE_SVC]});
+    bleDevice.addEventListener('gattserverdisconnected',()=>setUI(false));
+    const srv=await bleDevice.gatt.connect();
+    const svc=await srv.getPrimaryService(BLE_SVC);
+    dataChar=await svc.getCharacteristic(BLE_DATA);
+    cmdChar=await svc.getCharacteristic(BLE_CMD);
+    await dataChar.startNotifications();
+    dataChar.addEventListener('characteristicvaluechanged',e=>{
+      parseAndUpdate(new TextDecoder().decode(e.target.value));
+    });
+    setUI(true);
+  }catch(e){
+    console.error(e);setUI(false);
+    if(e.name!=='NotFoundError'&&e.name!=='AbortError')alert('خطأ: '+e.message);
+  }
+}
+
+async function doDisconnect(){
+  if(bleDevice&&bleDevice.gatt.connected)bleDevice.gatt.disconnect();
+  setUI(false);
+}
+
+async function sendCmd(v){
+  if(!cmdChar)return;
+  try{await cmdChar.writeValue(new TextEncoder().encode(v));}catch(e){}
+}
+
+function setBtn(txt,dis,off){
+  const b=document.getElementById('connBtn'),t=document.getElementById('btnTxt');
+  t.textContent=txt;b.disabled=dis;off?b.classList.add('off'):b.classList.remove('off');
+}
+
+function setUI(on){
+  connected=on;
+  const badge=document.getElementById('badge');
+  document.getElementById('connTxt').textContent=on?'متصل':'غير متصل';
+  on?badge.classList.add('on'):badge.classList.remove('on');
+  setBtn(on?'قطع الاتصال ✖':'اتصال بالجهاز',false,on);
+  if(!on)resetDisplay();
+}
+
+// ---- Data ----
+function parseAndUpdate(raw){
+  const p=raw.trim().split(',');if(p.length<6)return;
+  const f=parseFloat(p[0]),r=parseFloat(p[1]),lv=p[2].trim();
+  const d=parseInt(p[3]),ev=parseInt(p[4]),bt=parseInt(p[5]);
+  document.getElementById('vFreq').textContent=f.toFixed(1);flash('cardFreq');
+  document.getElementById('vRMS').textContent=r.toFixed(3);flash('cardRMS');
+  document.getElementById('vDur').textContent=d;flash('cardDur');
+  document.getElementById('vEvt').textContent=ev;flash('cardEvt');
+  updateBat(bt);updateStatus(lv);addPoint(r,lv);
+}
+
+function flash(id){
+  const e=document.getElementById(id);if(!e)return;
+  e.classList.remove('upd');requestAnimationFrame(()=>e.classList.add('upd'));
+}
+
+function updateBat(pct){
+  pct=Math.max(0,Math.min(100,pct));
+  document.getElementById('batPct').textContent=pct+'%';
+  const f=document.getElementById('batFill');
+  f.style.width=pct+'%';f.className='bat-fill'+(pct<20?' low':pct<50?' med':'');
+}
+
+function updateStatus(lv){
+  const card=document.getElementById('statusCard');
+  const lbl=document.getElementById('sLevel'),fill=document.getElementById('sFill');
+  card.className='status-card';
+  let txt,color,pct;
+  if(lv==='SEVERE'){txt='رعشة شديدة 🔴';color='#ef4444';pct=100;card.classList.add('severe');if(navigator.vibrate)navigator.vibrate([300,100,300]);}
+  else if(lv==='MODERATE'){txt='رعشة متوسطة 🟠';color='#f97316';pct=66;card.classList.add('moderate');}
+  else if(lv==='MILD'){txt='رعشة خفيفة 🟡';color='#facc15';pct=33;card.classList.add('mild');}
+  else{txt='طبيعي ✅';color='#22c55e';pct=5;}
+  lbl.textContent=txt;lbl.style.color=color;
+  fill.style.width=pct+'%';fill.style.background=color;
+}
+
+function resetDisplay(){
+  ['vFreq','vRMS'].forEach(id=>document.getElementById(id).textContent='—');
+  ['vDur','vEvt'].forEach(id=>document.getElementById(id).textContent='0');
+  document.getElementById('batPct').textContent='—%';
+  document.getElementById('batFill').style.width='0%';
+  updateStatus('NORMAL');
+}
+
+function resetAll(){
+  sendCmd('RESET');clearChart();
+  document.getElementById('vEvt').textContent='0';
+  document.getElementById('vDur').textContent='0';
+  updateStatus('NORMAL');
+}
+
+// ---- Chart ----
+const CD={vals:[],cols:[],max:40};
+let cv,cx;
+
+function initChart(){
+  cv=document.getElementById('chart');cx=cv.getContext('2d');
+  resize();drawChart();
+}
+
+function resize(){
+  cv.width=cv.offsetWidth*devicePixelRatio;
+  cv.height=100*devicePixelRatio;
+  cx.scale(devicePixelRatio,devicePixelRatio);
+}
+
+function addPoint(r,lv){
+  CD.vals.push(Math.min(r,2));CD.cols.push(lc(lv));
+  if(CD.vals.length>CD.max){CD.vals.shift();CD.cols.shift();}
+  drawChart();
+}
+
+function clearChart(){CD.vals=[];CD.cols=[];drawChart();}
+function lc(l){return l==='SEVERE'?'#ef4444':l==='MODERATE'?'#f97316':l==='MILD'?'#facc15':'#22c55e';}
+
+function drawChart(){
+  if(!cx)return;
+  const w=cv.offsetWidth,h=100;cx.clearRect(0,0,w,h);
+  cx.strokeStyle='rgba(255,255,255,0.05)';cx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=h/4*i;cx.beginPath();cx.moveTo(0,y);cx.lineTo(w,y);cx.stroke();}
+  [[.2,'#facc15','خفيف'],[.5,'#f97316','متوسط'],[1,'#ef4444','شديد']].forEach(([v,c,lb])=>{
+    const y=h-(v/2)*h;cx.strokeStyle=c+'44';cx.setLineDash([4,4]);
+    cx.beginPath();cx.moveTo(0,y);cx.lineTo(w,y);cx.stroke();cx.setLineDash([]);
+    cx.fillStyle=c+'99';cx.font='9px monospace';cx.fillText(lb,4,y-3);
+  });
+  if(CD.vals.length<2)return;
+  const st=w/(CD.max-1);
+  cx.beginPath();
+  CD.vals.forEach((v,i)=>{const x=i*st,y=h-(v/2)*h;i===0?cx.moveTo(x,y):cx.lineTo(x,y);});
+  cx.lineTo((CD.vals.length-1)*st,h);cx.lineTo(0,h);cx.closePath();
+  const g=cx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,'rgba(0,212,255,.25)');g.addColorStop(1,'rgba(0,212,255,0)');
+  cx.fillStyle=g;cx.fill();
+  cx.beginPath();cx.lineWidth=2;cx.strokeStyle='#00d4ff';
+  CD.vals.forEach((v,i)=>{const x=i*st,y=h-(v/2)*h;i===0?cx.moveTo(x,y):cx.lineTo(x,y);});
+  cx.stroke();
+  CD.vals.forEach((v,i)=>{cx.beginPath();cx.arc(i*st,h-(v/2)*h,3,0,Math.PI*2);cx.fillStyle=CD.cols[i];cx.fill();});
+}
+
+window.addEventListener('resize',()=>{if(cv){resize();drawChart();}});
+
+// ---- PWA Install ----
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('installBanner').style.display='flex';
+});
+
+async function installApp(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  const r=await deferredPrompt.userChoice;
+  if(r.outcome==='accepted')
+    document.getElementById('installBanner').style.display='none';
+  deferredPrompt=null;
+}
+
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('installBanner').style.display='none';
+});
+
+// ---- Service Worker ----
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(console.error);
+}
+
+// ---- Init ----
+window.addEventListener('load',()=>{
+  if(!navigator.bluetooth){
+    document.getElementById('bleWarning').style.display='block';
+    document.getElementById('connBtn').disabled=true;
+  }
+  initChart();
+});
+</script>
+</body>
+</html>
