@@ -2,134 +2,106 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#00d4ff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="PD Monitor">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<title>مراقب باركنسون</title>
+<meta name="apple-mobile-web-app-title" content="مراقب باركنسون">
+<meta name="application-name" content="Parkinson Monitor">
+<meta name="description" content="تطبيق متقدم لمراقبة رعشة باركنسون والتشخيص الطبي">
+<link rel="manifest" href="data:application/manifest+json,{%22name%22:%22مراقب%20باركنسون%22,%22short_name%22:%22Parkinson%20Monitor%22,%22start_url%22:%22/%22,%22display%22:%22standalone%22,%22background_color%22:%22%230a0e1a%22,%22theme_color%22:%22%2300d4ff%22}">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230a0e1a' width='100' height='100'/><circle cx='50' cy='50' r='45' stroke='%2300d4ff' stroke-width='2' fill='none'/><path d='M30 50 Q40 30 50 50 Q60 70 70 50' stroke='%2300d4ff' stroke-width='2.5' fill='none' stroke-linecap='round'/><circle cx='50' cy='50' r='3' fill='%2300d4ff'/></svg>">
+<title>مراقب باركنسون - Parkinson Monitor</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0e1a;--card:#1a2235;--border:#2a3a55;
+  --bg:#0a0e1a;--bg2:#111827;--card:#1a2235;--border:#2a3a55;
   --accent:#00d4ff;--normal:#22c55e;--mild:#facc15;
   --moderate:#f97316;--severe:#ef4444;
   --text:#e2e8f0;--text2:#94a3b8;
 }
-html,body{height:100%;overscroll-behavior:none}
-body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);
-  min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;touch-action:pan-y}
 .bg-grid{position:fixed;inset:0;z-index:0;
   background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),
   linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);
   background-size:40px 40px;pointer-events:none}
-.app{position:relative;z-index:1;max-width:480px;margin:0 auto;
-  min-height:100vh;padding-bottom:env(safe-area-inset-bottom,20px)}
-
-/* Header */
-.header{padding:14px 18px;padding-top:calc(14px + env(safe-area-inset-top,0px));
-  background:rgba(17,24,39,0.95);backdrop-filter:blur(20px);
+.app{position:relative;z-index:1;max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:40px}
+.header{padding:14px 18px;background:rgba(17,24,39,0.9);backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .hinner{display:flex;align-items:center;justify-content:space-between}
 .logo{display:flex;align-items:center;gap:10px}
-.logo-svg{width:36px;height:36px;color:var(--accent);animation:pulse 3s ease-in-out infinite;flex-shrink:0}
+.logo-svg{width:36px;height:36px;color:var(--accent);animation:pulse 3s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.95)}}
 .logo-main{display:block;font-size:17px;font-weight:700}
 .logo-sub{display:block;font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace}
 .badge{display:flex;align-items:center;gap:7px;padding:5px 12px;
   background:var(--card);border:1px solid var(--border);border-radius:20px;
-  font-size:12px;color:var(--text2);transition:all .3s;white-space:nowrap}
+  font-size:12px;color:var(--text2);transition:all .3s}
 .badge.on{border-color:var(--normal);color:var(--normal)}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--text2);transition:all .3s;flex-shrink:0}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--text2);transition:all .3s}
 .badge.on .dot{background:var(--normal);box-shadow:0 0 8px var(--normal);animation:blink 1.5s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* Main */
-.main{padding:16px;display:flex;flex-direction:column;gap:13px}
-
-/* Install Banner */
-.install-banner{background:linear-gradient(135deg,#1e3a5f,#0f2040);
-  border:1px solid #00d4ff44;border-radius:16px;padding:14px 16px;
-  display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .3s}
-.install-banner:hover{border-color:#00d4ff88}
-.install-icon{font-size:28px;flex-shrink:0}
-.install-text{flex:1}
-.install-title{font-size:14px;font-weight:700;color:#00d4ff;margin-bottom:2px}
-.install-sub{font-size:12px;color:var(--text2)}
-.install-btn{padding:7px 14px;background:#00d4ff;border:none;border-radius:10px;
-  color:#000;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;
-  cursor:pointer;white-space:nowrap;flex-shrink:0}
-
-/* Connect Button */
+.main{padding:18px;display:flex;flex-direction:column;gap:14px}
 .conn-btn{width:100%;padding:16px;background:linear-gradient(135deg,#00d4ff,#0099bb);
   border:none;border-radius:16px;color:#000;font-family:'Tajawal',sans-serif;
   font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;
-  justify-content:center;gap:10px;transition:all .3s;box-shadow:0 4px 20px rgba(0,212,255,.3);
-  -webkit-tap-highlight-color:transparent}
-.conn-btn:active{transform:scale(.98)}
+  justify-content:center;gap:10px;transition:all .3s;box-shadow:0 4px 20px rgba(0,212,255,.3)}
+.conn-btn:active{transform:scale(0.98)}
 .conn-btn.off{background:linear-gradient(135deg,#ef4444,#b91c1c);box-shadow:0 4px 20px rgba(239,68,68,.3)}
-.conn-btn:disabled{opacity:.6;cursor:not-allowed}
-
-/* Status Card */
-.status-card{background:var(--card);border:1px solid var(--border);
-  border-radius:20px;padding:22px;text-align:center;transition:all .5s}
+.conn-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.status-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;text-align:center;transition:all .5s}
 .status-card.mild{border-color:var(--mild);box-shadow:0 0 30px rgba(250,204,21,.15)}
 .status-card.moderate{border-color:var(--moderate);box-shadow:0 0 30px rgba(249,115,22,.15)}
-.status-card.severe{border-color:var(--severe);box-shadow:0 0 30px rgba(239,68,68,.2);
-  animation:shk .5s ease-in-out infinite alternate}
+.status-card.severe{border-color:var(--severe);box-shadow:0 0 30px rgba(239,68,68,.2);animation:shk .5s ease-in-out infinite alternate}
 @keyframes shk{0%{transform:translateX(-2px)}100%{transform:translateX(2px)}}
 .s-label{font-size:11px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
-.s-level{font-size:30px;font-weight:900;color:var(--normal);transition:all .4s;margin-bottom:14px}
-.s-bar{height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
-.s-fill{height:100%;width:0%;background:var(--normal);border-radius:3px;
-  transition:all .6s cubic-bezier(.34,1.56,.64,1)}
-
-/* Metrics Grid */
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.s-level{font-size:26px;font-weight:900;color:var(--normal);transition:all .4s;margin-bottom:8px}
+.s-bar{height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;margin-bottom:14px}
+.s-fill{height:100%;width:0%;background:var(--normal);border-radius:3px;transition:all .6s cubic-bezier(.34,1.56,.64,1)}
+.diag-box{margin-top:14px;border-radius:14px;padding:14px 16px;text-align:right;border:1px solid;transition:all .5s}
+.diag-box.d-normal{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3)}
+.diag-box.d-physio{background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.3)}
+.diag-box.d-possible{background:rgba(250,204,21,.08);border-color:rgba(250,204,21,.3)}
+.diag-box.d-probable{background:rgba(249,115,22,.1);border-color:rgba(249,115,22,.4)}
+.diag-box.d-severe{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.4)}
+.diag-title{font-size:13px;font-weight:700;margin-bottom:6px}
+.diag-desc{font-size:12px;color:var(--text2);line-height:1.7}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .mc{background:var(--card);border:1px solid var(--border);border-radius:16px;
-  padding:16px 12px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
+  padding:18px 14px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
 .mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .3s}
 .mc.upd::before{opacity:1}
-.m-icon{font-size:20px;margin-bottom:5px}
-.m-val{font-size:24px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;line-height:1}
+.m-icon{font-size:20px;margin-bottom:6px}
+.m-val{font-size:26px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;line-height:1}
 .m-unit{font-size:11px;color:var(--text2);margin:3px 0}
 .m-lbl{font-size:12px;color:var(--text2);font-weight:500}
-
-/* Battery */
-.bat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 18px}
-.bat-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:9px;color:var(--text2)}
-#batPct{color:var(--text);font-weight:700;font-family:'JetBrains Mono',monospace}
-.bat-track{height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden}
-.bat-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--normal),#16a34a);
-  border-radius:4px;transition:width 1s ease,background .5s}
-.bat-fill.low{background:linear-gradient(90deg,var(--severe),#b91c1c)}
-.bat-fill.med{background:linear-gradient(90deg,var(--mild),#ca8a04)}
-
-/* Chart */
-.chart-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
 .chart-title{font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600}
 canvas{width:100%!important;display:block}
-
-/* Reset */
 .reset-btn{width:100%;padding:13px;background:transparent;border:1px solid var(--border);
-  border-radius:14px;color:var(--text2);font-family:'Tajawal',sans-serif;font-size:15px;
-  cursor:pointer;transition:all .3s;-webkit-tap-highlight-color:transparent}
-.reset-btn:active{border-color:var(--severe);color:var(--severe)}
+  border-radius:14px;color:var(--text2);font-family:'Tajawal',sans-serif;font-size:15px;cursor:pointer;transition:all .3s}
+.reset-btn:active{transform:scale(0.98)}
+.reset-btn:hover{border-color:var(--severe);color:var(--severe);background:rgba(239,68,68,.05)}
+.no-ble{background:#1e1b4b;border:1px solid #4338ca;border-radius:14px;padding:16px;text-align:center;font-size:14px;color:#a5b4fc}
+.install-banner{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid var(--accent);border-radius:16px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.install-banner p{font-size:13px;margin:0;flex:1}
+.install-btn{background:var(--accent);border:none;padding:8px 16px;border-radius:30px;color:#000;font-weight:bold;cursor:pointer;font-size:13px}
+.install-btn:active{transform:scale(0.96)}
 
-/* No BLE */
-.no-ble{background:#1e1b4b;border:1px solid #4338ca;border-radius:14px;
-  padding:16px;text-align:center;font-size:14px;color:#a5b4fc}
+/* ── Demo Mode Banner ── */
+.demo-banner{background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.25);border-radius:14px;
+  padding:10px 14px;text-align:center;font-size:12px;color:var(--mild);font-family:'JetBrains Mono',monospace}
+.demo-btn{margin-top:8px;background:rgba(250,204,21,.15);border:1px solid rgba(250,204,21,.3);
+  border-radius:8px;color:var(--mild);font-family:'Tajawal',sans-serif;font-size:13px;
+  font-weight:700;cursor:pointer;padding:6px 18px;transition:all .2s}
+.demo-btn.running{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.3);color:var(--severe)}
 </style>
 </head>
 <body>
 <div class="bg-grid"></div>
 <div class="app">
-
   <header class="header">
     <div class="hinner">
       <div class="logo">
@@ -140,7 +112,7 @@ canvas{width:100%!important;display:block}
         </svg>
         <div>
           <span class="logo-main">مراقب باركنسون</span>
-          <span class="logo-sub">Parkinson Monitor v2.0</span>
+          <span class="logo-sub">Parkinson Monitor</span>
         </div>
       </div>
       <div class="badge" id="badge">
@@ -151,21 +123,23 @@ canvas{width:100%!important;display:block}
   </header>
 
   <main class="main">
-
-    <div id="installBanner" class="install-banner" style="display:none" onclick="installApp()">
-      <div class="install-icon">📲</div>
-      <div class="install-text">
-        <div class="install-title">ثبّت التطبيق على هاتفك</div>
-        <div class="install-sub">يعمل بدون إنترنت بعد التثبيت</div>
-      </div>
-      <button class="install-btn">تثبيت</button>
+    <div id="installBanner" class="install-banner" style="display:none">
+      <p>📲 <strong>تثبيت التطبيق</strong><br>شغّل التطبيق من شاشة هاتفك</p>
+      <button class="install-btn" id="installBtn">تثبيت</button>
     </div>
 
     <div id="bleWarning" style="display:none" class="no-ble">
-      ⚠️ افتح التطبيق في متصفح <strong>Chrome</strong> على Android
+      ⚠️ يرجى فتح هذا التطبيق في متصفح <strong>Chrome</strong> على Android
     </div>
 
-    <button class="conn-btn" id="connBtn" onclick="toggleConnect()">
+    <!-- Demo Mode Banner (shown when BLE not available) -->
+    <div id="demoBanner" class="demo-banner" style="display:none">
+      ⚡ وضع المحاكاة — BLE غير متاح في هذا المتصفح
+      <br>
+      <button class="demo-btn" id="demoToggleBtn" onclick="window.toggleDemo()">▶ تشغيل المحاكاة</button>
+    </div>
+
+    <button class="conn-btn" id="connBtn" onclick="window.toggleConnect()">
       <span>📶</span><span id="btnTxt">اتصال بالجهاز</span>
     </button>
 
@@ -173,6 +147,10 @@ canvas{width:100%!important;display:block}
       <div class="s-label">الحالة الراهنة</div>
       <div class="s-level" id="sLevel">طبيعي ✅</div>
       <div class="s-bar"><div class="s-fill" id="sFill"></div></div>
+      <div class="diag-box d-normal" id="diagBox">
+        <div class="diag-title" id="diagTitle" style="color:#22c55e">✅ لا رعشة مكتشفة</div>
+        <div class="diag-desc" id="diagDesc">الجهاز يعمل ويراقب — لم تُكتشف أي رعشة مرضية حتى الآن.</div>
+      </div>
     </div>
 
     <div class="grid">
@@ -202,210 +180,417 @@ canvas{width:100%!important;display:block}
       </div>
     </div>
 
-    <div class="bat-card">
-      <div class="bat-top"><span>🔋 البطارية</span><span id="batPct">—%</span></div>
-      <div class="bat-track"><div class="bat-fill" id="batFill"></div></div>
-    </div>
-
     <div class="chart-card">
       <div class="chart-title">📈 سجل الرعشة</div>
       <canvas id="chart" height="100"></canvas>
     </div>
 
-    <button class="reset-btn" onclick="resetAll()">↺ إعادة ضبط</button>
-
+    <button class="reset-btn" onclick="window.resetAll()">↺ إعادة ضبط</button>
   </main>
 </div>
 
 <script>
-// ---- BLE ----
-const BLE_SVC  = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
-const BLE_DATA = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
-const BLE_CMD  = 'beb5483e-36e1-4688-b7f5-ea07361b26a9';
-let bleDevice=null,dataChar=null,cmdChar=null,connected=false;
+/* ═══════════════════════════════════════════════
+   SERVICE WORKER (PWA offline support)
+═══════════════════════════════════════════════ */
+if('serviceWorker'in navigator){
+  navigator.serviceWorker.register('data:application/javascript,'+encodeURIComponent(
+    'const CACHE_NAME="parkinson-monitor-v1";'+
+    'self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE_NAME));self.skipWaiting()});'+
+    'self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(names=>Promise.all(names.map(n=>n!==CACHE_NAME&&caches.delete(n)))));self.clients.claim()});'+
+    'self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{if(!res||res.status!==200||res.type==="error")return res;const cache=res.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,cache));return res}).catch(()=>caches.match(e.request))))});'
+  ));
+}
 
-async function toggleConnect(){connected?await doDisconnect():await doConnect();}
+/* ═══════════════════════════════════════════════
+   PWA INSTALL PROMPT
+═══════════════════════════════════════════════ */
+let deferredPrompt;
+const installBanner = document.getElementById('installBanner');
+const installBtn    = document.getElementById('installBtn');
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBanner.style.display = 'flex';
+});
+installBtn.addEventListener('click', async () => {
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const {outcome} = await deferredPrompt.userChoice;
+    if(outcome==='accepted') installBanner.style.display='none';
+    deferredPrompt = null;
+  }
+});
+window.addEventListener('appinstalled', () => {
+  installBanner.style.display='none';
+  deferredPrompt = null;
+});
+
+/* ═══════════════════════════════════════════════
+   BLE CONSTANTS
+═══════════════════════════════════════════════ */
+const BLE_SERVICE   = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
+const BLE_DATA_CHAR = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
+const BLE_CMD_CHAR  = 'beb5483e-36e1-4688-b7f5-ea07361b26a9';
+
+let bleDevice = null, dataChar = null, cmdChar = null, connected = false;
+
+/* ═══════════════════════════════════════════════
+   BLE CONNECT / DISCONNECT
+═══════════════════════════════════════════════ */
+async function toggleConnect(){
+  connected ? await doDisconnect() : await doConnect();
+}
 
 async function doConnect(){
-  try{
-    setBtn('جارٍ البحث...',true,false);
-    bleDevice=await navigator.bluetooth.requestDevice({
-      filters:[{name:'PD_Monitor'}],optionalServices:[BLE_SVC]});
-    bleDevice.addEventListener('gattserverdisconnected',()=>setUI(false));
-    const srv=await bleDevice.gatt.connect();
-    const svc=await srv.getPrimaryService(BLE_SVC);
-    dataChar=await svc.getCharacteristic(BLE_DATA);
-    cmdChar=await svc.getCharacteristic(BLE_CMD);
-    await dataChar.startNotifications();
-    dataChar.addEventListener('characteristicvaluechanged',e=>{
-      parseAndUpdate(new TextDecoder().decode(e.target.value));
+  try {
+    setBtn('جارٍ البحث...', true, false);
+    if(!navigator.bluetooth) throw new Error('Bluetooth غير مدعوم');
+    bleDevice = await navigator.bluetooth.requestDevice({
+      filters: [{name:'PD_Monitor'}],
+      optionalServices: [BLE_SERVICE]
     });
+    bleDevice.addEventListener('gattserverdisconnected', () => setUI(false));
+    const server  = await bleDevice.gatt.connect();
+    const service = await server.getPrimaryService(BLE_SERVICE);
+    dataChar = await service.getCharacteristic(BLE_DATA_CHAR);
+    cmdChar  = await service.getCharacteristic(BLE_CMD_CHAR);
+    await dataChar.startNotifications();
+    dataChar.addEventListener('characteristicvaluechanged', onData);
     setUI(true);
-  }catch(e){
-    console.error(e);setUI(false);
-    if(e.name!=='NotFoundError'&&e.name!=='AbortError')alert('خطأ: '+e.message);
+  } catch(e) {
+    console.error(e);
+    setUI(false);
+    if(e.name !== 'NotFoundError' && e.name !== 'AbortError') alert('خطأ: ' + e.message);
   }
 }
 
 async function doDisconnect(){
-  if(bleDevice&&bleDevice.gatt.connected)bleDevice.gatt.disconnect();
+  if(bleDevice && bleDevice.gatt.connected) bleDevice.gatt.disconnect();
   setUI(false);
 }
 
-async function sendCmd(v){
-  if(!cmdChar)return;
-  try{await cmdChar.writeValue(new TextEncoder().encode(v));}catch(e){}
+function onData(e){
+  parseAndUpdate(new TextDecoder().decode(e.target.value));
 }
 
-function setBtn(txt,dis,off){
-  const b=document.getElementById('connBtn'),t=document.getElementById('btnTxt');
-  t.textContent=txt;b.disabled=dis;off?b.classList.add('off'):b.classList.remove('off');
+async function sendCmd(v){
+  if(!cmdChar) return;
+  try { await cmdChar.writeValue(new TextEncoder().encode(v)); } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════
+   UI HELPERS
+═══════════════════════════════════════════════ */
+function setBtn(txt, disabled, isOff){
+  const b = document.getElementById('connBtn');
+  const t = document.getElementById('btnTxt');
+  t.textContent = txt;
+  b.disabled = disabled;
+  isOff ? b.classList.add('off') : b.classList.remove('off');
 }
 
 function setUI(on){
-  connected=on;
-  const badge=document.getElementById('badge');
-  document.getElementById('connTxt').textContent=on?'متصل':'غير متصل';
-  on?badge.classList.add('on'):badge.classList.remove('on');
-  setBtn(on?'قطع الاتصال ✖':'اتصال بالجهاز',false,on);
-  if(!on)resetDisplay();
+  connected = on;
+  const badge   = document.getElementById('badge');
+  const connTxt = document.getElementById('connTxt');
+  if(on){
+    badge.classList.add('on');
+    connTxt.textContent = 'متصل';
+    setBtn('قطع الاتصال ✖', false, true);
+  } else {
+    badge.classList.remove('on');
+    connTxt.textContent = 'غير متصل';
+    setBtn('اتصال بالجهاز', false, false);
+    resetDisplay();
+  }
 }
 
-// ---- Data ----
-function parseAndUpdate(raw){
-  const p=raw.trim().split(',');if(p.length<6)return;
-  const f=parseFloat(p[0]),r=parseFloat(p[1]),lv=p[2].trim();
-  const d=parseInt(p[3]),ev=parseInt(p[4]),bt=parseInt(p[5]);
-  document.getElementById('vFreq').textContent=f.toFixed(1);flash('cardFreq');
-  document.getElementById('vRMS').textContent=r.toFixed(3);flash('cardRMS');
-  document.getElementById('vDur').textContent=d;flash('cardDur');
-  document.getElementById('vEvt').textContent=ev;flash('cardEvt');
-  updateBat(bt);updateStatus(lv);addPoint(r,lv);
-}
-
-function flash(id){
-  const e=document.getElementById(id);if(!e)return;
-  e.classList.remove('upd');requestAnimationFrame(()=>e.classList.add('upd'));
-}
-
-function updateBat(pct){
-  pct=Math.max(0,Math.min(100,pct));
-  document.getElementById('batPct').textContent=pct+'%';
-  const f=document.getElementById('batFill');
-  f.style.width=pct+'%';f.className='bat-fill'+(pct<20?' low':pct<50?' med':'');
-}
-
-function updateStatus(lv){
-  const card=document.getElementById('statusCard');
-  const lbl=document.getElementById('sLevel'),fill=document.getElementById('sFill');
-  card.className='status-card';
-  let txt,color,pct;
-  if(lv==='SEVERE'){txt='رعشة شديدة 🔴';color='#ef4444';pct=100;card.classList.add('severe');if(navigator.vibrate)navigator.vibrate([300,100,300]);}
-  else if(lv==='MODERATE'){txt='رعشة متوسطة 🟠';color='#f97316';pct=66;card.classList.add('moderate');}
-  else if(lv==='MILD'){txt='رعشة خفيفة 🟡';color='#facc15';pct=33;card.classList.add('mild');}
-  else{txt='طبيعي ✅';color='#22c55e';pct=5;}
-  lbl.textContent=txt;lbl.style.color=color;
-  fill.style.width=pct+'%';fill.style.background=color;
-}
-
-function resetDisplay(){
-  ['vFreq','vRMS'].forEach(id=>document.getElementById(id).textContent='—');
-  ['vDur','vEvt'].forEach(id=>document.getElementById(id).textContent='0');
-  document.getElementById('batPct').textContent='—%';
-  document.getElementById('batFill').style.width='0%';
-  updateStatus('NORMAL');
-}
-
-function resetAll(){
-  sendCmd('RESET');clearChart();
-  document.getElementById('vEvt').textContent='0';
-  document.getElementById('vDur').textContent='0';
-  updateStatus('NORMAL');
-}
-
-// ---- Chart ----
-const CD={vals:[],cols:[],max:40};
-let cv,cx;
+/* ═══════════════════════════════════════════════
+   CHART
+═══════════════════════════════════════════════ */
+const chartData = {vals:[], cols:[], max:40};
+let cv, cx;
 
 function initChart(){
-  cv=document.getElementById('chart');cx=cv.getContext('2d');
-  resize();drawChart();
-}
-
-function resize(){
-  cv.width=cv.offsetWidth*devicePixelRatio;
-  cv.height=100*devicePixelRatio;
-  cx.scale(devicePixelRatio,devicePixelRatio);
-}
-
-function addPoint(r,lv){
-  CD.vals.push(Math.min(r,2));CD.cols.push(lc(lv));
-  if(CD.vals.length>CD.max){CD.vals.shift();CD.cols.shift();}
+  cv = document.getElementById('chart');
+  cx = cv.getContext('2d');
+  cv.width  = cv.offsetWidth * devicePixelRatio;
+  cv.height = 100 * devicePixelRatio;
+  cx.scale(devicePixelRatio, devicePixelRatio);
   drawChart();
 }
 
-function clearChart(){CD.vals=[];CD.cols=[];drawChart();}
-function lc(l){return l==='SEVERE'?'#ef4444':l==='MODERATE'?'#f97316':l==='MILD'?'#facc15':'#22c55e';}
+function addPoint(rms, level){
+  chartData.vals.push(Math.min(rms, 2));
+  chartData.cols.push(lvlColor(level));
+  if(chartData.vals.length > chartData.max){ chartData.vals.shift(); chartData.cols.shift(); }
+  drawChart();
+}
+
+function clearChart(){ chartData.vals=[]; chartData.cols=[]; drawChart(); }
+
+function lvlColor(l){
+  if(l==='SEVERE')   return '#ef4444';
+  if(l==='MODERATE') return '#f97316';
+  if(l==='MILD')     return '#facc15';
+  return '#22c55e';
+}
 
 function drawChart(){
-  if(!cx)return;
-  const w=cv.offsetWidth,h=100;cx.clearRect(0,0,w,h);
-  cx.strokeStyle='rgba(255,255,255,0.05)';cx.lineWidth=1;
+  if(!cx) return;
+  const w=cv.offsetWidth, h=100;
+  cx.clearRect(0,0,w,h);
+
+  /* horizontal grid */
+  cx.strokeStyle='rgba(255,255,255,0.05)';
+  cx.lineWidth=1;
   for(let i=0;i<=4;i++){const y=h/4*i;cx.beginPath();cx.moveTo(0,y);cx.lineTo(w,y);cx.stroke();}
-  [[.2,'#facc15','خفيف'],[.5,'#f97316','متوسط'],[1,'#ef4444','شديد']].forEach(([v,c,lb])=>{
-    const y=h-(v/2)*h;cx.strokeStyle=c+'44';cx.setLineDash([4,4]);
-    cx.beginPath();cx.moveTo(0,y);cx.lineTo(w,y);cx.stroke();cx.setLineDash([]);
-    cx.fillStyle=c+'99';cx.font='9px monospace';cx.fillText(lb,4,y-3);
+
+  /* threshold lines */
+  [[.2,'#facc15','خفيف'],[.5,'#f97316','متوسط'],[1,'#ef4444','شديد']].forEach(([v,c,lbl])=>{
+    const y=h-(v/2)*h;
+    cx.strokeStyle=c+'44';cx.setLineDash([4,4]);
+    cx.beginPath();cx.moveTo(0,y);cx.lineTo(w,y);cx.stroke();
+    cx.setLineDash([]);
+    cx.fillStyle=c+'99';cx.font='9px monospace';cx.fillText(lbl,4,y-3);
   });
-  if(CD.vals.length<2)return;
-  const st=w/(CD.max-1);
+
+  if(chartData.vals.length < 2) return;
+
+  const step = w/(chartData.max-1);
+
+  /* fill gradient */
   cx.beginPath();
-  CD.vals.forEach((v,i)=>{const x=i*st,y=h-(v/2)*h;i===0?cx.moveTo(x,y):cx.lineTo(x,y);});
-  cx.lineTo((CD.vals.length-1)*st,h);cx.lineTo(0,h);cx.closePath();
+  chartData.vals.forEach((v,i)=>{
+    const x=i*step, y=h-(v/2)*h;
+    i===0 ? cx.moveTo(x,y) : cx.lineTo(x,y);
+  });
+  cx.lineTo((chartData.vals.length-1)*step, h);
+  cx.lineTo(0,h);
+  cx.closePath();
   const g=cx.createLinearGradient(0,0,0,h);
-  g.addColorStop(0,'rgba(0,212,255,.25)');g.addColorStop(1,'rgba(0,212,255,0)');
-  cx.fillStyle=g;cx.fill();
+  g.addColorStop(0,'rgba(0,212,255,.25)');
+  g.addColorStop(1,'rgba(0,212,255,0)');
+  cx.fillStyle=g; cx.fill();
+
+  /* line */
   cx.beginPath();cx.lineWidth=2;cx.strokeStyle='#00d4ff';
-  CD.vals.forEach((v,i)=>{const x=i*st,y=h-(v/2)*h;i===0?cx.moveTo(x,y):cx.lineTo(x,y);});
+  chartData.vals.forEach((v,i)=>{
+    const x=i*step, y=h-(v/2)*h;
+    i===0 ? cx.moveTo(x,y) : cx.lineTo(x,y);
+  });
   cx.stroke();
-  CD.vals.forEach((v,i)=>{cx.beginPath();cx.arc(i*st,h-(v/2)*h,3,0,Math.PI*2);cx.fillStyle=CD.cols[i];cx.fill();});
+
+  /* dots */
+  chartData.vals.forEach((v,i)=>{
+    cx.beginPath();
+    cx.arc(i*step, h-(v/2)*h, 3,0,Math.PI*2);
+    cx.fillStyle=chartData.cols[i]; cx.fill();
+  });
 }
 
-window.addEventListener('resize',()=>{if(cv){resize();drawChart();}});
-
-// ---- PWA Install ----
-let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();deferredPrompt=e;
-  document.getElementById('installBanner').style.display='flex';
+window.addEventListener('resize',()=>{
+  if(!cv) return;
+  cv.width=cv.offsetWidth*devicePixelRatio;
+  cv.height=100*devicePixelRatio;
+  cx.scale(devicePixelRatio,devicePixelRatio);
+  drawChart();
 });
 
-async function installApp(){
-  if(!deferredPrompt)return;
-  deferredPrompt.prompt();
-  const r=await deferredPrompt.userChoice;
-  if(r.outcome==='accepted')
-    document.getElementById('installBanner').style.display='none';
-  deferredPrompt=null;
+/* ═══════════════════════════════════════════════
+   DIAGNOSIS LOGIC
+═══════════════════════════════════════════════ */
+function getPDDiagnosis(level, freq, rms){
+  const isPDFreq = freq>=3.0 && freq<=6.0;
+  if(level==='NORMAL') return {cls:'d-normal',color:'#22c55e',title:'✅ لا رعشة مكتشفة',desc:'الجهاز يعمل ويراقب — لم تُكتشف أي رعشة مرضية حتى الآن.'};
+  if(level==='MILD'){
+    if(isPDFreq) return {cls:'d-possible',color:'#facc15',title:'⚠️ رعشة خفيفة — تردد مشابه لباركنسون',desc:'التردد ('+freq.toFixed(1)+' Hz) ضمن نطاق رعشة باركنسون (3-6 Hz). يُنصح بمراقبة مستمرة ومراجعة الطبيب.'};
+    return {cls:'d-physio',color:'#00d4ff',title:'🔵 رعشة خفيفة — طبيعية على الأرجح',desc:'التردد ('+freq.toFixed(1)+' Hz) خارج نطاق باركنسون. قد تكون رعشة فسيولوجية طبيعية.'};
+  }
+  if(level==='MODERATE'){
+    if(isPDFreq) return {cls:'d-probable',color:'#f97316',title:'🟠 رعشة متوسطة — احتمال باركنسون مرتفع',desc:'التردد ('+freq.toFixed(1)+' Hz) والشدة تتطابق مع خصائص رعشة باركنسون. مراجعة طبيب أعصاب ضرورية.'};
+    return {cls:'d-possible',color:'#facc15',title:'⚠️ رعشة متوسطة — تحتاج تقييم طبي',desc:'الشدة مرتفعة رغم أن التردد خارج النطاق الكلاسيكي لباركنسون. يُنصح بمراجعة الطبيب.'};
+  }
+  if(level==='SEVERE'){
+    if(isPDFreq) return {cls:'d-severe',color:'#ef4444',title:'🔴 رعشة شديدة — مؤشر قوي لباركنسون',desc:'رعشة شديدة بتردد ('+freq.toFixed(1)+' Hz) ضمن نطاق باركنسون. يستوجب مراجعة طبيب أعصاب فوراً.'};
+    return {cls:'d-severe',color:'#ef4444',title:'🔴 رعشة شديدة — مراجعة طبية عاجلة',desc:'رعشة شديدة جداً. بغض النظر عن السبب، هذه الشدة تستوجب مراجعة طبيب.'};
+  }
+  return {cls:'d-normal',color:'#22c55e',title:'✅ طبيعي',desc:''};
 }
 
-window.addEventListener('appinstalled',()=>{
-  document.getElementById('installBanner').style.display='none';
-});
-
-// ---- Service Worker ----
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('./sw.js').catch(console.error);
+/* ═══════════════════════════════════════════════
+   DATA PARSING & UI UPDATE
+═══════════════════════════════════════════════ */
+function parseAndUpdate(raw){
+  const p = raw.trim().split(',');
+  if(p.length < 5) return;
+  const freq  = parseFloat(p[0]);
+  const rms   = parseFloat(p[1]);
+  const level = p[2].trim();
+  updateMetrics(freq, rms, parseInt(p[3]), parseInt(p[4]));
+  updateStatus(level, rms, freq);
+  addPoint(rms, level);
 }
 
-// ---- Init ----
-window.addEventListener('load',()=>{
+function flash(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.remove('upd');
+  requestAnimationFrame(()=>el.classList.add('upd'));
+  setTimeout(()=>el.classList.remove('upd'), 200);
+}
+
+function updateMetrics(f, r, d, e){
+  document.getElementById('vFreq').textContent = f.toFixed(1); flash('cardFreq');
+  document.getElementById('vRMS').textContent  = r.toFixed(3); flash('cardRMS');
+  document.getElementById('vDur').textContent  = d;            flash('cardDur');
+  document.getElementById('vEvt').textContent  = e;            flash('cardEvt');
+}
+
+function updateStatus(level, rms, freq){
+  const card = document.getElementById('statusCard');
+  const lbl  = document.getElementById('sLevel');
+  const fill = document.getElementById('sFill');
+  card.className = 'status-card';
+  let txt, color, pct;
+  if(level==='SEVERE'){
+    txt='رعشة شديدة 🔴'; color='#ef4444'; pct=100;
+    card.classList.add('severe');
+    if(navigator.vibrate) navigator.vibrate([300,100,300]);
+  } else if(level==='MODERATE'){
+    txt='رعشة متوسطة 🟠'; color='#f97316'; pct=66;
+    card.classList.add('moderate');
+  } else if(level==='MILD'){
+    txt='رعشة خفيفة 🟡'; color='#facc15'; pct=33;
+    card.classList.add('mild');
+  } else {
+    txt='طبيعي ✅'; color='#22c55e'; pct=5;
+  }
+  lbl.textContent = txt;
+  lbl.style.color = color;
+  fill.style.width = pct+'%';
+  fill.style.background = color;
+  const diag = getPDDiagnosis(level, freq||0, rms||0);
+  const box   = document.getElementById('diagBox');
+  const dtitle= document.getElementById('diagTitle');
+  const ddesc = document.getElementById('diagDesc');
+  box.className = 'diag-box '+diag.cls;
+  dtitle.style.color = diag.color;
+  dtitle.textContent = diag.title;
+  ddesc.textContent  = diag.desc;
+}
+
+/* ═══════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════ */
+function resetAll(){
+  sendCmd('RESET');
+  clearChart();
+  demoEvents = 0; demoDur = 0;
+  document.getElementById('vEvt').textContent='0';
+  document.getElementById('vDur').textContent='0';
+  updateStatus('NORMAL',0,0);
+}
+
+function resetDisplay(){
+  document.getElementById('vFreq').textContent='—';
+  document.getElementById('vRMS').textContent='—';
+  document.getElementById('vDur').textContent='0';
+  document.getElementById('vEvt').textContent='0';
+  updateStatus('NORMAL',0,0);
+}
+
+/* ═══════════════════════════════════════════════
+   DEMO / SIMULATION MODE
+   (activates automatically when BLE is unavailable)
+═══════════════════════════════════════════════ */
+let demoRunning  = false;
+let demoInterval = null;
+let demoPhase    = 0;
+let demoEvents   = 0;
+let demoDur      = 0;
+let demoPrevLevel= 'NORMAL';
+
+function toggleDemo(){
+  demoRunning ? stopDemo() : startDemo();
+}
+
+function startDemo(){
+  demoRunning = true;
+  const btn = document.getElementById('demoToggleBtn');
+  btn.textContent = '⏹ إيقاف المحاكاة';
+  btn.classList.add('running');
+  document.getElementById('badge').classList.add('on');
+  document.getElementById('connTxt').textContent = 'محاكاة';
+
+  demoInterval = setInterval(()=>{
+    demoPhase += 0.1;
+    // Simulate realistic tremor: cycles through NORMAL → MILD → MODERATE → SEVERE
+    const cycle = (demoPhase % (Math.PI * 6));
+    let rms, freq, level;
+
+    if(cycle < Math.PI * 1.5){
+      // NORMAL phase
+      freq = 8 + Math.random() * 4;
+      rms  = 0.05 + Math.random() * 0.1;
+      level = 'NORMAL';
+    } else if(cycle < Math.PI * 3){
+      // MILD phase
+      freq = 3.5 + Math.random() * 1.5;
+      rms  = 0.15 + Math.random() * 0.15;
+      level = 'MILD';
+    } else if(cycle < Math.PI * 4.5){
+      // MODERATE phase
+      freq = 4 + Math.random() * 1.5;
+      rms  = 0.4 + Math.random() * 0.25;
+      level = 'MODERATE';
+    } else {
+      // SEVERE phase
+      freq = 4.5 + Math.random() * 1;
+      rms  = 0.8 + Math.random() * 0.6;
+      level = 'SEVERE';
+    }
+
+    if(level !== 'NORMAL') demoDur++;
+    if(level !== 'NORMAL' && demoPrevLevel === 'NORMAL') demoEvents++;
+    demoPrevLevel = level;
+
+    updateMetrics(freq, rms, demoDur, demoEvents);
+    updateStatus(level, rms, freq);
+    addPoint(rms, level);
+  }, 300);
+}
+
+function stopDemo(){
+  demoRunning = false;
+  clearInterval(demoInterval);
+  demoInterval = null;
+  const btn = document.getElementById('demoToggleBtn');
+  btn.textContent = '▶ تشغيل المحاكاة';
+  btn.classList.remove('running');
+  document.getElementById('badge').classList.remove('on');
+  document.getElementById('connTxt').textContent = 'غير متصل';
+  resetDisplay();
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+window.addEventListener('load', ()=>{
   if(!navigator.bluetooth){
-    document.getElementById('bleWarning').style.display='block';
-    document.getElementById('connBtn').disabled=true;
+    document.getElementById('bleWarning').style.display = 'block';
+    document.getElementById('connBtn').disabled = true;
+    document.getElementById('demoBanner').style.display = 'block';
   }
   initChart();
 });
+
+/* Expose globals */
+window.toggleConnect = toggleConnect;
+window.resetAll      = resetAll;
+window.toggleDemo    = toggleDemo;
 </script>
 </body>
 </html>
